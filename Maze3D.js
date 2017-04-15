@@ -25,18 +25,6 @@ Math.nextInt = function (number) {
 	return Math.floor(Math.random() * number);
 }
 
-/* Recreate a system function that exists in Java but not JavaScript.
- * Uncomment either WScript.Echo() or alert() depending on whether you are
- * running the script from the Windows command-line or a Web page.
- */
-function println(string)
-{
-	// if inside Windows Scripting Host
-	WScript.Echo(string);
-	// if inside a Web page
-//	alert(string);
-}
-
 function HTMLify(text) {
 	let dummy = document.createElement('div');
 	dummy.innerHTML = text;
@@ -168,11 +156,11 @@ function Maze(lenx, leny, lenz, cell_width) {
 		}
 
 		/* Add an entrance and exit. */
-		maze[0][Math.floor(leny/2)][0] &= ~WALL_LEFT;
-		maze[lenx - 1][Math.floor(leny/2)][lenz - 1] &= ~WALL_RIGHT;
+		maze[0][0][0] &= ~WALL_LEFT;
+		maze[lenx - 1][leny - 1][lenz - 1] &= ~WALL_RIGHT;
 	}
 	/* Called to write the maze to an SVG file. */
-	this.printSVG = function () {
+	this.createSVG = function () {
 		var lenx = this.lenx;
 		var leny = this.leny;
 		var lenz = this.lenz;
@@ -181,16 +169,14 @@ function Maze(lenx, leny, lenz, cell_width) {
 		var size_x = (lenx + 1) * pics_xy * cell_width + cell_width;
 		var size_y = (leny + 1) * pics_xy * cell_width + cell_width;
 		mazeImg = HTMLify(
-			"<svg width=\"" + size_x + "px\" height=\"" + size_y + "px\" viewBox=\"0 0 " + size_x + " " + size_y + "\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n"
+			"<svg width='" + size_x + "px' height='" + size_y + "px' viewBox='0 0 " + size_x + " " + size_y + "' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n"
 			+ "  <title>SVG Maze</title>\n"
 			+ "  <desc>A 3D maze generated using a modified version of Prim's algorithm. Vertical layers are numbered starting from the bottom layer to the top. Stairs up are indicated with '/'; stairs down with '\\', and stairs up-and-down with 'x'. License is Cc-by-sa-3.0. See Wikimedia Commons for the algorithm used.</desc>\n"
-			+ "<!--\n"
-			+ "  <rect width=\"" + size_x + "px\" height=\"" + size_y + "px\" style=\"fill:blue;\" />\n"
-			+ "-->\n"
-			+ "  <g stroke=\"black\" stroke-width=\"1\" stroke-linecap=\"round\">\n"
+			+ "  <g stroke='black' stroke-width='1' stroke-linecap='round'>\n"
 			+ this.drawMaze()
 			+ "  </g>\n"
-			+ "  <g fill=\"black\">\n"
+			+ this.makePiece()
+			+ "  <g fill='black'>\n"
 			+ this.drawLabels()
 			+ "  </g>\n"
 			+ "</svg>\n"
@@ -260,7 +246,7 @@ function Maze(lenx, leny, lenz, cell_width) {
 	}
 	/* Draw a line, either in the SVG file or on the screen. */
 	this.drawLine = function (x1, y1, x2, y2) {
-		return "    <line x1=\"" + x1 + "\" y1=\"" + y1 + "\" x2=\"" + x2 + "\" y2=\"" + y2 + "\" />\n";
+		return "    <line x1='" + x1 + "' y1='" + y1 + "' x2='" + x2 + "' y2='" + y2 + "' />\n";
 	}
 	/* Text labels. */
 	this.drawLabels = function () {
@@ -282,7 +268,12 @@ function Maze(lenx, leny, lenz, cell_width) {
 	this.drawText = function (x, y, label) {
 		var cell_width = this.cell_width;
 		y -= cell_width/10;
-		return "    <text x=\"" + x + "\" y=\"" + y + "\" font-size=\"" + cell_width + "px\" font-family=\"LucidaTypewriter Sans\">" + label + ".</text>\n";
+		return "    <text x='" + x + "' y='" + y + "' font-size='" + cell_width + "px' font-family='LucidaTypewriter Sans'>" + label + ".</text>\n";
+	}
+
+  /* Make a cursor piece to move around the maze. */
+	this.makePiece = function () {
+		return "    <circle id='piece' cx='" + (this.cell_width * 3 / 2) + "' cy='" + (this.cell_width * 3 / 2) + "' r='" + (this.cell_width * 1 / 3) + "' stroke='red' stroke-width='2' fill-opacity='0.0'/>\n";
 	}
 }
 
@@ -291,7 +282,7 @@ function Maze(lenx, leny, lenz, cell_width) {
 function main(args) {
 	var m = new Maze();
 	m.createMaze();
-	m.printSVG();
+	m.createSVG();
 }
 
 /* execute the program */
