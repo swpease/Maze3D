@@ -60,6 +60,7 @@ function Maze(lenx, leny, lenz, cell_width) {
 	else
 		this.cell_width = 50;
 	this.maze = [];
+	this.piecePos = [0, 0, 0];
 
 	/* The maze generation algorithm. */
 	this.createMaze = function()  {
@@ -275,6 +276,65 @@ function Maze(lenx, leny, lenz, cell_width) {
 	this.makePiece = function () {
 		return "    <circle id='piece' cx='" + (this.cell_width * 3 / 2) + "' cy='" + (this.cell_width * 3 / 2) + "' r='" + (this.cell_width * 1 / 3) + "' stroke='red' stroke-width='2' fill-opacity='0.0'/>\n";
 	}
+
+	this.enablePiece = function () {
+		// let piece = document.getElementById('piece');
+		document.addEventListener('keyup', (event) => {
+			console.log("fired");
+			let x = this.piecePos[0];
+			let y = this.piecePos[1];
+			let z = this.piecePos[2];
+			let piece = document.getElementById('piece');
+
+			if (event.defaultPrevented) {
+				console.log("breaking");
+				return; // Do nothing if the event was already processed
+			}
+
+			switch (event.key) {
+				case "w":
+				  console.log("W");
+				  if ((this.maze[x][y][z] & WALL_ABOVE) == 0) {
+						y -= 1;
+						this.piecePos = [x, y, z];
+						piece.setAttribute('cy', piece.cy.baseVal.value - this.cell_width);
+					}
+				  break;
+				case "s":
+				  console.log("S");
+					if ((this.maze[x][y][z] & WALL_BELOW) == 0) {
+						y += 1;
+						this.piecePos = [x, y, z];
+						piece.setAttribute('cy', piece.cy.baseVal.value + this.cell_width);
+					}
+				  break;
+				case "a":
+					if ((this.maze[x][y][z] & WALL_LEFT) == 0 && x != 0) {
+						x -= 1;
+						this.piecePos = [x, y, z];
+						piece.setAttribute('cx', piece.cx.baseVal.value - this.cell_width);
+					}
+				  break;
+				case "d":
+					if ((this.maze[x][y][z] & WALL_RIGHT) == 0) {
+						x += 1;
+						this.piecePos = [x, y, z];
+						piece.setAttribute('cx', piece.cx.baseVal.value + this.cell_width);
+					}
+				  break;
+				case "ArrowDown":
+				  console.log("hi");
+					break;
+				case "ArrowUp":
+					break;
+				default:
+					return;
+			}
+
+			// Cancel the default action to avoid it being handled twice
+			event.preventDefault();
+		});
+	}
 }
 
 /* Initialization method that will be called when the program is
@@ -283,6 +343,7 @@ function main(args) {
 	var m = new Maze();
 	m.createMaze();
 	m.createSVG();
+	m.enablePiece();
 }
 
 /* execute the program */
