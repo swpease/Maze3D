@@ -278,22 +278,18 @@ function Maze(lenx, leny, lenz, cell_width) {
 	}
 
 	this.enablePiece = function () {
-		// let piece = document.getElementById('piece');
 		document.addEventListener('keyup', (event) => {
-			console.log("fired");
 			let x = this.piecePos[0];
 			let y = this.piecePos[1];
 			let z = this.piecePos[2];
 			let piece = document.getElementById('piece');
 
 			if (event.defaultPrevented) {
-				console.log("breaking");
 				return; // Do nothing if the event was already processed
 			}
 
 			switch (event.key) {
 				case "w":
-				  console.log("W");
 				  if ((this.maze[x][y][z] & WALL_ABOVE) == 0) {
 						y -= 1;
 						this.piecePos = [x, y, z];
@@ -301,7 +297,6 @@ function Maze(lenx, leny, lenz, cell_width) {
 					}
 				  break;
 				case "s":
-				  console.log("S");
 					if ((this.maze[x][y][z] & WALL_BELOW) == 0) {
 						y += 1;
 						this.piecePos = [x, y, z];
@@ -323,14 +318,47 @@ function Maze(lenx, leny, lenz, cell_width) {
 					}
 				  break;
 				case "ArrowDown":
-				  console.log("hi");
+  				if ((this.maze[x][y][z] & WALL_FRONT) == 0) {
+						z -= 1;
+						this.piecePos = [x, y, z];
+						var pics_xy = Math.ceil(Math.sqrt(this.lenz));
+						let grid_width = this.cell_width * (this.lenx + 1);
+						let grid_height = this.cell_width * (this.leny + 1);
+						let new_x, new_y;
+						if ((z + 1) % pics_xy == 0) {
+							new_x = piece.cx.baseVal.value + (grid_width * (pics_xy - 1));
+							new_y = piece.cy.baseVal.value - grid_height;
+						} else {
+							new_x = piece.cx.baseVal.value - grid_width;
+							new_y = piece.cy.baseVal.value;
+						}
+						piece.setAttribute('cx', new_x);
+						piece.setAttribute('cy', new_y);
+					}
 					break;
 				case "ArrowUp":
+					if ((this.maze[x][y][z] & WALL_BACK) == 0) {
+						z += 1;
+						this.piecePos = [x, y, z];
+						var pics_xy = Math.ceil(Math.sqrt(this.lenz));
+						let grid_width = this.cell_width * (this.lenx + 1);
+						let grid_height = this.cell_width * (this.leny + 1);
+						let new_x, new_y;
+						if (z % pics_xy == 0) { // go to first grid in next row.
+							new_x = piece.cx.baseVal.value - (grid_width * (pics_xy - 1));
+							new_y = piece.cy.baseVal.value + grid_height;
+						} else {
+							new_x = piece.cx.baseVal.value + grid_width;
+							new_y = piece.cy.baseVal.value;
+						}
+						piece.setAttribute('cx', new_x);
+						piece.setAttribute('cy', new_y);
+					}
 					break;
 				default:
 					return;
 			}
-
+		  
 			// Cancel the default action to avoid it being handled twice
 			event.preventDefault();
 		});
