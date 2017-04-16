@@ -318,7 +318,7 @@ function Maze() {
 						piece.setAttribute('cx', piece.cx.baseVal.value + this.cell_width);
 					}
 				  break;
-				case "ArrowDown":
+				case "q":
   				if ((this.maze[x][y][z] & WALL_FRONT) == 0) {
 						z -= 1;
 						// var pics_xy = Math.ceil(Math.sqrt(this.lenz));
@@ -336,7 +336,7 @@ function Maze() {
 						piece.setAttribute('cy', new_y);
 					}
 					break;
-				case "ArrowUp":
+				case "e":
 					if ((this.maze[x][y][z] & WALL_BACK) == 0) {
 						z += 1;
 						if (z % pics_xy == 0) { // go to first grid in next row.
