@@ -358,17 +358,23 @@ function Maze() {
 	}
 }
 
+var m = new Maze();
+
+function moverWrapper(e) {
+	m.mover(e);
+}
+
+document.addEventListener('keyup', moverWrapper);
+
 /* Initialization method that will be called when the Create Maze button is clicked.
 * Maze will be written as SVG file. */
 function main() {
 	old_maze = document.getElementById('maze');
 	if (old_maze) {
 		old_maze.remove();
+		m.maze = [];
+		m.piecePos = [0, 0, 0];
 	}
-	var m = new Maze();
 	m.createMaze();
 	m.createSVG();
-	document.addEventListener('keyup', function(e) {
-		m.mover(e);
-	});
 }
