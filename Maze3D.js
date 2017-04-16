@@ -277,86 +277,84 @@ function Maze() {
 		return "    <circle id='piece' cx='" + (this.cell_width * 3 / 2) + "' cy='" + (this.cell_width * 3 / 2) + "' r='" + (this.cell_width * 1 / 3) + "' stroke='red' stroke-width='2' fill-opacity='0.0'/>\n";
 	}
 
-	this.enablePiece = function () {
-		document.addEventListener('keyup', (event) => {
-			let x = this.piecePos[0];
-			let y = this.piecePos[1];
-			let z = this.piecePos[2];
-			let piece = document.getElementById('piece');
+  this.mover = function (event) {
+		let x = this.piecePos[0];
+		let y = this.piecePos[1];
+		let z = this.piecePos[2];
+		let piece = document.getElementById('piece');
 
-			let pics_xy = Math.ceil(Math.sqrt(this.lenz));
-			let grid_width = this.cell_width * (this.lenx + 1);
-			let grid_height = this.cell_width * (this.leny + 1);
-			let new_x, new_y;
+		let pics_xy = Math.ceil(Math.sqrt(this.lenz));
+		let grid_width = this.cell_width * (this.lenx + 1);
+		let grid_height = this.cell_width * (this.leny + 1);
+		let new_x, new_y;
 
-			if (event.defaultPrevented) {
-				return; // Do nothing if the event was already processed
-			}
+		if (event.defaultPrevented) {
+			return; // Do nothing if the event was already processed
+		}
 
-			switch (event.key) {
-				case "w":
-				  if ((this.maze[x][y][z] & WALL_ABOVE) == 0) {
-						y -= 1;
-						piece.setAttribute('cy', piece.cy.baseVal.value - this.cell_width);
+		switch (event.key) {
+			case "w":
+				if ((this.maze[x][y][z] & WALL_ABOVE) == 0) {
+					y -= 1;
+					piece.setAttribute('cy', piece.cy.baseVal.value - this.cell_width);
+				}
+				break;
+			case "s":
+				if ((this.maze[x][y][z] & WALL_BELOW) == 0) {
+					y += 1;
+					piece.setAttribute('cy', piece.cy.baseVal.value + this.cell_width);
+				}
+				break;
+			case "a":
+				if ((this.maze[x][y][z] & WALL_LEFT) == 0 && x != 0) {
+					x -= 1;
+					piece.setAttribute('cx', piece.cx.baseVal.value - this.cell_width);
+				}
+				break;
+			case "d":
+				if ((this.maze[x][y][z] & WALL_RIGHT) == 0) {
+					x += 1;
+					piece.setAttribute('cx', piece.cx.baseVal.value + this.cell_width);
+				}
+				break;
+			case "q":
+				if ((this.maze[x][y][z] & WALL_FRONT) == 0) {
+					z -= 1;
+					// var pics_xy = Math.ceil(Math.sqrt(this.lenz));
+					// let grid_width = this.cell_width * (this.lenx + 1);
+					// let grid_height = this.cell_width * (this.leny + 1);
+					// let new_x, new_y;
+					if ((z + 1) % pics_xy == 0) {
+						new_x = piece.cx.baseVal.value + (grid_width * (pics_xy - 1));
+						new_y = piece.cy.baseVal.value - grid_height;
+					} else {
+						new_x = piece.cx.baseVal.value - grid_width;
+						new_y = piece.cy.baseVal.value;
 					}
-				  break;
-				case "s":
-					if ((this.maze[x][y][z] & WALL_BELOW) == 0) {
-						y += 1;
-						piece.setAttribute('cy', piece.cy.baseVal.value + this.cell_width);
+					piece.setAttribute('cx', new_x);
+					piece.setAttribute('cy', new_y);
+				}
+				break;
+			case "e":
+				if ((this.maze[x][y][z] & WALL_BACK) == 0) {
+					z += 1;
+					if (z % pics_xy == 0) { // go to first grid in next row.
+						new_x = piece.cx.baseVal.value - (grid_width * (pics_xy - 1));
+						new_y = piece.cy.baseVal.value + grid_height;
+					} else {
+						new_x = piece.cx.baseVal.value + grid_width;
+						new_y = piece.cy.baseVal.value;
 					}
-				  break;
-				case "a":
-					if ((this.maze[x][y][z] & WALL_LEFT) == 0 && x != 0) {
-						x -= 1;
-						piece.setAttribute('cx', piece.cx.baseVal.value - this.cell_width);
-					}
-				  break;
-				case "d":
-					if ((this.maze[x][y][z] & WALL_RIGHT) == 0) {
-						x += 1;
-						piece.setAttribute('cx', piece.cx.baseVal.value + this.cell_width);
-					}
-				  break;
-				case "q":
-  				if ((this.maze[x][y][z] & WALL_FRONT) == 0) {
-						z -= 1;
-						// var pics_xy = Math.ceil(Math.sqrt(this.lenz));
-						// let grid_width = this.cell_width * (this.lenx + 1);
-						// let grid_height = this.cell_width * (this.leny + 1);
-						// let new_x, new_y;
-						if ((z + 1) % pics_xy == 0) {
-							new_x = piece.cx.baseVal.value + (grid_width * (pics_xy - 1));
-							new_y = piece.cy.baseVal.value - grid_height;
-						} else {
-							new_x = piece.cx.baseVal.value - grid_width;
-							new_y = piece.cy.baseVal.value;
-						}
-						piece.setAttribute('cx', new_x);
-						piece.setAttribute('cy', new_y);
-					}
-					break;
-				case "e":
-					if ((this.maze[x][y][z] & WALL_BACK) == 0) {
-						z += 1;
-						if (z % pics_xy == 0) { // go to first grid in next row.
-							new_x = piece.cx.baseVal.value - (grid_width * (pics_xy - 1));
-							new_y = piece.cy.baseVal.value + grid_height;
-						} else {
-							new_x = piece.cx.baseVal.value + grid_width;
-							new_y = piece.cy.baseVal.value;
-						}
-						piece.setAttribute('cx', new_x);
-						piece.setAttribute('cy', new_y);
-					}
-					break;
-				default:
-					return;
-			}
-		  this.piecePos = [x, y, z]; // Update.
-			// Cancel the default action to avoid it being handled twice
-			event.preventDefault();
-		});
+					piece.setAttribute('cx', new_x);
+					piece.setAttribute('cy', new_y);
+				}
+				break;
+			default:
+				return;
+		}
+		this.piecePos = [x, y, z]; // Update.
+		// Cancel the default action to avoid it being handled twice
+		event.preventDefault();
 	}
 }
 
@@ -370,5 +368,7 @@ function main() {
 	var m = new Maze();
 	m.createMaze();
 	m.createSVG();
-	m.enablePiece();
+	document.addEventListener('keyup', function(e) {
+		m.mover(e);
+	});
 }
