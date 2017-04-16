@@ -284,6 +284,11 @@ function Maze(lenx, leny, lenz, cell_width) {
 			let z = this.piecePos[2];
 			let piece = document.getElementById('piece');
 
+			let pics_xy = Math.ceil(Math.sqrt(this.lenz));
+			let grid_width = this.cell_width * (this.lenx + 1);
+			let grid_height = this.cell_width * (this.leny + 1);
+			let new_x, new_y;
+
 			if (event.defaultPrevented) {
 				return; // Do nothing if the event was already processed
 			}
@@ -292,39 +297,34 @@ function Maze(lenx, leny, lenz, cell_width) {
 				case "w":
 				  if ((this.maze[x][y][z] & WALL_ABOVE) == 0) {
 						y -= 1;
-						this.piecePos = [x, y, z];
 						piece.setAttribute('cy', piece.cy.baseVal.value - this.cell_width);
 					}
 				  break;
 				case "s":
 					if ((this.maze[x][y][z] & WALL_BELOW) == 0) {
 						y += 1;
-						this.piecePos = [x, y, z];
 						piece.setAttribute('cy', piece.cy.baseVal.value + this.cell_width);
 					}
 				  break;
 				case "a":
 					if ((this.maze[x][y][z] & WALL_LEFT) == 0 && x != 0) {
 						x -= 1;
-						this.piecePos = [x, y, z];
 						piece.setAttribute('cx', piece.cx.baseVal.value - this.cell_width);
 					}
 				  break;
 				case "d":
 					if ((this.maze[x][y][z] & WALL_RIGHT) == 0) {
 						x += 1;
-						this.piecePos = [x, y, z];
 						piece.setAttribute('cx', piece.cx.baseVal.value + this.cell_width);
 					}
 				  break;
 				case "ArrowDown":
   				if ((this.maze[x][y][z] & WALL_FRONT) == 0) {
 						z -= 1;
-						this.piecePos = [x, y, z];
-						var pics_xy = Math.ceil(Math.sqrt(this.lenz));
-						let grid_width = this.cell_width * (this.lenx + 1);
-						let grid_height = this.cell_width * (this.leny + 1);
-						let new_x, new_y;
+						// var pics_xy = Math.ceil(Math.sqrt(this.lenz));
+						// let grid_width = this.cell_width * (this.lenx + 1);
+						// let grid_height = this.cell_width * (this.leny + 1);
+						// let new_x, new_y;
 						if ((z + 1) % pics_xy == 0) {
 							new_x = piece.cx.baseVal.value + (grid_width * (pics_xy - 1));
 							new_y = piece.cy.baseVal.value - grid_height;
@@ -339,11 +339,6 @@ function Maze(lenx, leny, lenz, cell_width) {
 				case "ArrowUp":
 					if ((this.maze[x][y][z] & WALL_BACK) == 0) {
 						z += 1;
-						this.piecePos = [x, y, z];
-						var pics_xy = Math.ceil(Math.sqrt(this.lenz));
-						let grid_width = this.cell_width * (this.lenx + 1);
-						let grid_height = this.cell_width * (this.leny + 1);
-						let new_x, new_y;
 						if (z % pics_xy == 0) { // go to first grid in next row.
 							new_x = piece.cx.baseVal.value - (grid_width * (pics_xy - 1));
 							new_y = piece.cy.baseVal.value + grid_height;
@@ -358,7 +353,7 @@ function Maze(lenx, leny, lenz, cell_width) {
 				default:
 					return;
 			}
-		  
+		  this.piecePos = [x, y, z]; // Update.
 			// Cancel the default action to avoid it being handled twice
 			event.preventDefault();
 		});
