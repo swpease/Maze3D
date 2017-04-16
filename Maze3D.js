@@ -42,23 +42,23 @@ var QUEUED = 64;
 var IN_MAZE = 128;
 
 /* Construct a Maze with specified lenx, leny, and cell_width */
-function Maze(lenx, leny, lenz, cell_width) {
-	if (lenx)
+function Maze() {
+  let lenx = parseInt(document.getElementById('width').value);
+	let leny = parseInt(document.getElementById('height').value);
+	let lenz = parseInt(document.getElementById('num-floors').value);
+	if (lenx > 0 && lenx <= 100)
 		this.lenx = lenx;
 	else
 		this.lenx = 9;
-	if (leny)
+	if (leny > 0 && leny <= 100)
 		this.leny = leny;
 	else
 		this.leny = 9;
-	if (lenz)
+	if (lenz > 0 && lenz <= 100)
 		this.lenz = lenz;
 	else
 		this.lenz = 4;
-	if (cell_width)
-		this.cell_width = cell_width;
-	else
-		this.cell_width = 50;
+	this.cell_width = 50;
 	this.maze = [];
 	this.piecePos = [0, 0, 0];
 
@@ -170,7 +170,7 @@ function Maze(lenx, leny, lenz, cell_width) {
 		var size_x = (lenx + 1) * pics_xy * cell_width + cell_width;
 		var size_y = (leny + 1) * pics_xy * cell_width + cell_width;
 		mazeImg = HTMLify(
-			"<svg width='" + size_x + "px' height='" + size_y + "px' viewBox='0 0 " + size_x + " " + size_y + "' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n"
+			"<svg id='maze' width='" + size_x + "px' height='" + size_y + "px' viewBox='0 0 " + size_x + " " + size_y + "' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n"
 			+ "  <title>SVG Maze</title>\n"
 			+ "  <desc>A 3D maze generated using a modified version of Prim's algorithm. Vertical layers are numbered starting from the bottom layer to the top. Stairs up are indicated with '/'; stairs down with '\\', and stairs up-and-down with 'x'. License is Cc-by-sa-3.0. See Wikimedia Commons for the algorithm used.</desc>\n"
 			+ "  <g stroke='black' stroke-width='1' stroke-linecap='round'>\n"
@@ -360,14 +360,15 @@ function Maze(lenx, leny, lenz, cell_width) {
 	}
 }
 
-/* Initialization method that will be called when the program is
-* run from the command-line. Maze will be written as SVG file. */
-function main(args) {
+/* Initialization method that will be called when the Create Maze button is clicked.
+* Maze will be written as SVG file. */
+function main() {
+	old_maze = document.getElementById('maze');
+	if (old_maze) {
+		old_maze.remove();
+	}
 	var m = new Maze();
 	m.createMaze();
 	m.createSVG();
 	m.enablePiece();
 }
-
-/* execute the program */
-main();
