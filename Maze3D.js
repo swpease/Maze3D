@@ -360,11 +360,12 @@ function Maze() {
 
 var m = new Maze();
 
-function moverWrapper(e) {
+/* Apparently there are issues with focus on svg HTML elements, so I just added
+ * the functionality to document itself.
+ */
+document.addEventListener('keyup', function (e) {
 	m.mover(e);
-}
-
-document.addEventListener('keyup', moverWrapper);
+});
 
 /* Initialization method that will be called when the Create Maze button is clicked.
 * Maze will be written as SVG file. */
@@ -372,7 +373,7 @@ function main() {
 	old_maze = document.getElementById('maze');
 	if (old_maze) {
 		old_maze.remove();
-		m.maze = [];
+		m.maze = [];  // Couldn't figure out how to dereference Mazes, so I switched to resetting the values.
 		m.piecePos = [0, 0, 0];
 	}
 	m.createMaze();
