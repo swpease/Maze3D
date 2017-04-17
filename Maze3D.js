@@ -43,24 +43,26 @@ var IN_MAZE = 128;
 
 /* Construct a Maze with specified lenx, leny, and cell_width */
 function Maze() {
-  let lenx = parseInt(document.getElementById('width').value);
-	let leny = parseInt(document.getElementById('height').value);
-	let lenz = parseInt(document.getElementById('num-floors').value);
-	if (lenx > 0 && lenx <= 100)
-		this.lenx = lenx;
-	else
-		this.lenx = 9;
-	if (leny > 0 && leny <= 100)
-		this.leny = leny;
-	else
-		this.leny = 9;
-	if (lenz > 0 && lenz <= 100)
-		this.lenz = lenz;
-	else
-		this.lenz = 4;
-	this.cell_width = 50;
-	this.maze = [];
-	this.piecePos = [0, 0, 0];
+  this.initialize = function () {
+	  let lenx = parseInt(document.getElementById('width').value);
+		let leny = parseInt(document.getElementById('height').value);
+		let lenz = parseInt(document.getElementById('num-floors').value);
+		if (lenx > 0 && lenx <= 100)
+			this.lenx = lenx;
+		else
+			this.lenx = 9;
+		if (leny > 0 && leny <= 100)
+			this.leny = leny;
+		else
+			this.leny = 9;
+		if (lenz > 0 && lenz <= 100)
+			this.lenz = lenz;
+		else
+			this.lenz = 4;
+		this.cell_width = 50;
+		this.maze = [];
+		this.piecePos = [0, 0, 0];
+  }
 
 	/* The maze generation algorithm. */
 	this.createMaze = function()  {
@@ -373,9 +375,9 @@ function main() {
 	old_maze = document.getElementById('maze');
 	if (old_maze) {
 		old_maze.remove();
-		m.maze = [];  // Couldn't figure out how to dereference Mazes, so I switched to resetting the values.
-		m.piecePos = [0, 0, 0];
 	}
+	
+	m.initialize();
 	m.createMaze();
 	m.createSVG();
 }
