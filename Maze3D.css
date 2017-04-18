@@ -1,0 +1,16 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #maze, #maze * {
+    visibility: visible;
+  }
+  #piece {
+    visibility: hidden;
+  }
+  #maze {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

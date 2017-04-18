@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>3D Maze</title>
+    <link href="Maze3D.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+  <h1>Create a 3D Maze</h1>
+  <h2>Select values from 1 to 100. Values over 100 or less than 1 will revert to default values.</h2>
+  <label for="width">Width:</label>
+  <input type="number" min="1" value="9" id="width">
+  <label for="height">Height:</label>
+  <input type="number" min="1" value="9" id="height">
+  <label for="num-floors">Number of Floors:</label>
+  <input type="number" min="1" value="4" id="num-floors">
+  <button type="button" onclick="main()">Create Maze</button>
+  <br>
   <script src="Maze3D.js"></script>
 </body>
 </html>

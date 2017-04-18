@@ -25,18 +25,6 @@ Math.nextInt = function (number) {
 	return Math.floor(Math.random() * number);
 }
 
-/* Recreate a system function that exists in Java but not JavaScript.
- * Uncomment either WScript.Echo() or alert() depending on whether you are
- * running the script from the Windows command-line or a Web page.
- */
-function println(string)
-{
-	// if inside Windows Scripting Host
-	WScript.Echo(string);
-	// if inside a Web page
-//	alert(string);
-}
-
 function HTMLify(text) {
 	let dummy = document.createElement('div');
 	dummy.innerHTML = text;
@@ -54,24 +42,27 @@ var QUEUED = 64;
 var IN_MAZE = 128;
 
 /* Construct a Maze with specified lenx, leny, and cell_width */
-function Maze(lenx, leny, lenz, cell_width) {
-	if (lenx)
-		this.lenx = lenx;
-	else
-		this.lenx = 9;
-	if (leny)
-		this.leny = leny;
-	else
-		this.leny = 9;
-	if (lenz)
-		this.lenz = lenz;
-	else
-		this.lenz = 4;
-	if (cell_width)
-		this.cell_width = cell_width;
-	else
+function Maze() {
+  this.initialize = function () {
+	  let lenx = parseInt(document.getElementById('width').value);
+		let leny = parseInt(document.getElementById('height').value);
+		let lenz = parseInt(document.getElementById('num-floors').value);
+		if (lenx > 0 && lenx <= 100)
+			this.lenx = lenx;
+		else
+			this.lenx = 9;
+		if (leny > 0 && leny <= 100)
+			this.leny = leny;
+		else
+			this.leny = 9;
+		if (lenz > 0 && lenz <= 100)
+			this.lenz = lenz;
+		else
+			this.lenz = 4;
 		this.cell_width = 50;
-	this.maze = [];
+		this.maze = [];
+		this.piecePos = [0, 0, 0];
+  }
 
 	/* The maze generation algorithm. */
 	this.createMaze = function()  {
@@ -168,11 +159,11 @@ function Maze(lenx, leny, lenz, cell_width) {
 		}
 
 		/* Add an entrance and exit. */
-		maze[0][Math.floor(leny/2)][0] &= ~WALL_LEFT;
-		maze[lenx - 1][Math.floor(leny/2)][lenz - 1] &= ~WALL_RIGHT;
+		maze[0][0][0] &= ~WALL_LEFT;
+		maze[lenx - 1][leny - 1][lenz - 1] &= ~WALL_RIGHT;
 	}
 	/* Called to write the maze to an SVG file. */
-	this.printSVG = function () {
+	this.createSVG = function () {
 		var lenx = this.lenx;
 		var leny = this.leny;
 		var lenz = this.lenz;
@@ -181,16 +172,14 @@ function Maze(lenx, leny, lenz, cell_width) {
 		var size_x = (lenx + 1) * pics_xy * cell_width + cell_width;
 		var size_y = (leny + 1) * pics_xy * cell_width + cell_width;
 		mazeImg = HTMLify(
-			"<svg width=\"" + size_x + "px\" height=\"" + size_y + "px\" viewBox=\"0 0 " + size_x + " " + size_y + "\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n"
+			"<svg id='maze' width='" + size_x + "px' height='" + size_y + "px' viewBox='0 0 " + size_x + " " + size_y + "' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n"
 			+ "  <title>SVG Maze</title>\n"
 			+ "  <desc>A 3D maze generated using a modified version of Prim's algorithm. Vertical layers are numbered starting from the bottom layer to the top. Stairs up are indicated with '/'; stairs down with '\\', and stairs up-and-down with 'x'. License is Cc-by-sa-3.0. See Wikimedia Commons for the algorithm used.</desc>\n"
-			+ "<!--\n"
-			+ "  <rect width=\"" + size_x + "px\" height=\"" + size_y + "px\" style=\"fill:blue;\" />\n"
-			+ "-->\n"
-			+ "  <g stroke=\"black\" stroke-width=\"1\" stroke-linecap=\"round\">\n"
+			+ "  <g stroke='black' stroke-width='1' stroke-linecap='round'>\n"
 			+ this.drawMaze()
 			+ "  </g>\n"
-			+ "  <g fill=\"black\">\n"
+			+ this.makePiece()
+			+ "  <g fill='black'>\n"
 			+ this.drawLabels()
 			+ "  </g>\n"
 			+ "</svg>\n"
@@ -260,7 +249,7 @@ function Maze(lenx, leny, lenz, cell_width) {
 	}
 	/* Draw a line, either in the SVG file or on the screen. */
 	this.drawLine = function (x1, y1, x2, y2) {
-		return "    <line x1=\"" + x1 + "\" y1=\"" + y1 + "\" x2=\"" + x2 + "\" y2=\"" + y2 + "\" />\n";
+		return "    <line x1='" + x1 + "' y1='" + y1 + "' x2='" + x2 + "' y2='" + y2 + "' />\n";
 	}
 	/* Text labels. */
 	this.drawLabels = function () {
@@ -282,17 +271,113 @@ function Maze(lenx, leny, lenz, cell_width) {
 	this.drawText = function (x, y, label) {
 		var cell_width = this.cell_width;
 		y -= cell_width/10;
-		return "    <text x=\"" + x + "\" y=\"" + y + "\" font-size=\"" + cell_width + "px\" font-family=\"LucidaTypewriter Sans\">" + label + ".</text>\n";
+		return "    <text x='" + x + "' y='" + y + "' font-size='" + cell_width + "px' font-family='LucidaTypewriter Sans'>" + label + ".</text>\n";
+	}
+
+  /* Make a cursor piece to move around the maze. */
+	this.makePiece = function () {
+		return "    <circle id='piece' cx='" + (this.cell_width * 3 / 2) + "' cy='" + (this.cell_width * 3 / 2) + "' r='" + (this.cell_width * 1 / 3) + "' stroke='red' stroke-width='2' fill-opacity='0.0'/>\n";
+	}
+
+  this.mover = function (event) {
+		let x = this.piecePos[0];
+		let y = this.piecePos[1];
+		let z = this.piecePos[2];
+		let piece = document.getElementById('piece');
+
+		let pics_xy = Math.ceil(Math.sqrt(this.lenz));
+		let grid_width = this.cell_width * (this.lenx + 1);
+		let grid_height = this.cell_width * (this.leny + 1);
+		let new_x, new_y;
+
+		if (event.defaultPrevented) {
+			return; // Do nothing if the event was already processed
+		}
+
+		switch (event.key) {
+			case "w":
+				if ((this.maze[x][y][z] & WALL_ABOVE) == 0) {
+					y -= 1;
+					piece.setAttribute('cy', piece.cy.baseVal.value - this.cell_width);
+				}
+				break;
+			case "s":
+				if ((this.maze[x][y][z] & WALL_BELOW) == 0) {
+					y += 1;
+					piece.setAttribute('cy', piece.cy.baseVal.value + this.cell_width);
+				}
+				break;
+			case "a":
+				if ((this.maze[x][y][z] & WALL_LEFT) == 0 && x != 0) {
+					x -= 1;
+					piece.setAttribute('cx', piece.cx.baseVal.value - this.cell_width);
+				}
+				break;
+			case "d":
+				if ((this.maze[x][y][z] & WALL_RIGHT) == 0) {
+					x += 1;
+					piece.setAttribute('cx', piece.cx.baseVal.value + this.cell_width);
+				}
+				break;
+			case "q":
+				if ((this.maze[x][y][z] & WALL_FRONT) == 0) {
+					z -= 1;
+					// var pics_xy = Math.ceil(Math.sqrt(this.lenz));
+					// let grid_width = this.cell_width * (this.lenx + 1);
+					// let grid_height = this.cell_width * (this.leny + 1);
+					// let new_x, new_y;
+					if ((z + 1) % pics_xy == 0) {
+						new_x = piece.cx.baseVal.value + (grid_width * (pics_xy - 1));
+						new_y = piece.cy.baseVal.value - grid_height;
+					} else {
+						new_x = piece.cx.baseVal.value - grid_width;
+						new_y = piece.cy.baseVal.value;
+					}
+					piece.setAttribute('cx', new_x);
+					piece.setAttribute('cy', new_y);
+				}
+				break;
+			case "e":
+				if ((this.maze[x][y][z] & WALL_BACK) == 0) {
+					z += 1;
+					if (z % pics_xy == 0) { // go to first grid in next row.
+						new_x = piece.cx.baseVal.value - (grid_width * (pics_xy - 1));
+						new_y = piece.cy.baseVal.value + grid_height;
+					} else {
+						new_x = piece.cx.baseVal.value + grid_width;
+						new_y = piece.cy.baseVal.value;
+					}
+					piece.setAttribute('cx', new_x);
+					piece.setAttribute('cy', new_y);
+				}
+				break;
+			default:
+				return;
+		}
+		this.piecePos = [x, y, z]; // Update.
+		// Cancel the default action to avoid it being handled twice
+		event.preventDefault();
 	}
 }
 
-/* Initialization method that will be called when the program is
-* run from the command-line. Maze will be written as SVG file. */
-function main(args) {
-	var m = new Maze();
-	m.createMaze();
-	m.printSVG();
-}
+var m = new Maze();
 
-/* execute the program */
-main();
+/* Apparently there are issues with focus on svg HTML elements, so I just added
+ * the functionality to document itself.
+ */
+document.addEventListener('keyup', function (e) {
+	m.mover(e);
+});
+
+/* Initialization method that will be called when the Create Maze button is clicked.
+* Maze will be written as SVG file. */
+function main() {
+	old_maze = document.getElementById('maze');
+	if (old_maze) {
+		old_maze.remove();
+	}
+	
+	m.initialize();
+	m.createMaze();
+	m.createSVG();
+}
